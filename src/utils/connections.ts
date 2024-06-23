@@ -30,15 +30,22 @@ const getConnections = async (
         fromToken: tokenAddressPair.fromTokenAddress,
         toToken: tokenAddressPair.toTokenAddress,
       };
-      if (chainType) {
-        requestParams["chainTypes"] = chainType;
+      if (chainType) requestParams["chainTypes"] = chainType;
+
+      const requestData: Record<string, any> = {
+        params: {
+          params: requestParams,
+        },
+      };
+      if (process.env.LIFI_API_KEY) {
+        requestData["headers"] = {
+          "x-lifi-api-key": process.env.LIFI_API_KEY,
+        };
       }
 
       const response = await rateLimitedAxiosClient.get(
         `${apiUrl}/connections`,
-        {
-          params: requestParams,
-        }
+        requestData
       );
 
       await writeCache(

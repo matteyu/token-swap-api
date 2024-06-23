@@ -44,10 +44,17 @@ const getQuote = async (req: Request, res: Response) => {
       };
       if (toAddress) requestParams["toAddress"] = toAddress;
 
+      const requestData:Record<string, any> = {
+        params: requestParams
+      }
+      if(process.env.LIFI_API_KEY){
+        requestData['headers'] = {
+            'x-lifi-api-key': process.env.LIFI_API_KEY
+        }
+      }
+
       // step 3 - retrieve quote
-      const response = await rateLimitedAxiosClient.get(`${apiUrl}/quote`, {
-        params: requestParams,
-      });
+      const response = await rateLimitedAxiosClient.get(`${apiUrl}/quote`, requestData);
 
       res.status(200).json(response.data);
 

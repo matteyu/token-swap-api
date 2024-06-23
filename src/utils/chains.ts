@@ -14,23 +14,28 @@ const getChains = async (chain?: ChainType): Promise<_Chain[]> => {
   const selectedChainType = chain ?? "EVM,SVM";
   try {
     const chains = await readCache(selectedChainType);
+    if (chains) return JSON.parse(chains);
 
-    if (chains){
-      return JSON.parse(chains);
+    const requestData: Record<string, any> = {
+      params: {
+        chainTypes: selectedChainType,
+      },
+    };
+    if (process.env.LIFI_API_KEY) {
+      requestData["headers"] = {
+        "x-lifi-api-key": process.env.LIFI_API_KEY,
+      };
     }
-    else{
-      const response = await rateLimitedAxiosClient.get(`${apiUrl}/chains`, {
-        params: {
-          chainTypes: selectedChainType,
-        },
-      });
-      await writeCache(
-        selectedChainType,
-        JSON.stringify(response.data.chains),
-        Number(process.env.CHAINS_EXPIRY_SECONDS) || 300
-      );
-      return response.data.chains;
-    }
+    const response = await rateLimitedAxiosClient.get(
+      `${apiUrl}/chains`,
+      requestData
+    );
+    await writeCache(
+      selectedChainType,
+      JSON.stringify(response.data.chains),
+      Number(process.env.CHAINS_EXPIRY_SECONDS) || 300
+    );
+    return response.data.chains;
   } catch (error: any) {
     throw new Error(error.message);
   }
