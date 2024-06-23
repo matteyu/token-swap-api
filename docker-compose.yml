@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - SWAP_API_URL=${SWAP_API_URL}
+      - MAX_REQUEST_PER_SECOND=${MAX_REQUEST_PER_SECOND}
+      - REDIS_URL=${REDIS_URL}
+      - CHAINS_EXPIRY_SECONDS=${CHAINS_EXPIRY_SECONDS}
+      - CONNECTIONS_EXPIRY_SECONDS=${CONNECTIONS_EXPIRY_SECONDS}
+    depends_on:
+      - redis
+    links:
+      - redis
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: ["npm", "start"]
+    
+  redis:
+    image: "redis:alpine"
+    restart: "always"
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
