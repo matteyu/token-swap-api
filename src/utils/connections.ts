@@ -33,9 +33,7 @@ const getConnections = async (
       if (chainType) requestParams["chainTypes"] = chainType;
 
       const requestData: Record<string, any> = {
-        params: {
-          params: requestParams,
-        },
+        params: requestParams,
       };
       if (process.env.LIFI_API_KEY) {
         requestData["headers"] = {
